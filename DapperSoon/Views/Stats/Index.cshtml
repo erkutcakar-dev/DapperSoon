@@ -1,0 +1,239 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Football Stats Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Football Statistics Dashboard</h4>
+                        <p class="card-description">Comprehensive overview of football statistics and performance metrics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Widgets Row -->
+        <div class="row">
+            @foreach (var widget in Model.Widgets)
+            {
+                <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-9">
+                                    <div class="d-flex align-items-center align-self-start">
+                                        <h3 class="mb-0">@widget.Value</h3>
+                                        <p class="text-success ml-2 mb-0 font-weight-medium">@widget.Description</p>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="icon icon-box-@widget.Color">
+                                        <i class="@widget.Icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <h6 class="text-muted font-weight-normal">@widget.WidgetName</h6>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <!-- Top Scorers Chart -->
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Top Scorers</h4>
+                        <canvas id="topScorersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals vs xGoals Scatter Chart -->
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Goals vs Expected Goals</h4>
+                        <canvas id="goalsVsXGoalsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Stats and League Stats Row -->
+        <div class="row">
+            <!-- Team Stats Table -->
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Team Statistics</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Team</th>
+                                        <th>Goals</th>
+                                        <th>Points</th>
+                                        <th>Games</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Model.TeamStatsTop10)
+                                    {
+                                        <tr>
+                                            <td>@team.TeamName</td>
+                                            <td>@team.Goals</td>
+                                            <td>@team.Points</td>
+                                            <td>@team.GamesPlayed</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- League Stats -->
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">League Statistics</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>League</th>
+                                        <th>Games</th>
+                                        <th>Goals</th>
+                                        <th>Avg Goals</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var league in Model.LeagueStats)
+                                    {
+                                        <tr>
+                                            <td>@league.LeagueName</td>
+                                            <td>@league.TotalGames</td>
+                                            <td>@league.TotalGoals</td>
+                                            <td>@league.AverageGoalsPerGame.ToString("F1")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Goals Chart -->
+        <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Monthly Goals Trend</h4>
+                        <canvas id="monthlyGoalsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Top Scorers Chart
+        const topScorersData = @Html.Raw(Json.Serialize(Model.TopScorersChartData));
+        const topScorersCtx = document.getElementById('topScorersChart').getContext('2d');
+        new Chart(topScorersCtx, {
+            type: 'bar',
+
+            data: {
+                labels: topScorersData.map(p => p.name),
+                datasets: [{
+                    label: 'Goals',
+                    data: topScorersData.map(p => p.goals),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Goals vs xGoals Scatter Chart
+        const goalsVsXGoalsData = @Html.Raw(Json.Serialize(Model.GoalsVsXGoals));
+        const goalsVsXGoalsCtx = document.getElementById('goalsVsXGoalsChart').getContext('2d');
+        new Chart(goalsVsXGoalsCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Players',
+                    data: goalsVsXGoalsData.map(p => ({ x: p.x, y: p.y })),
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Goals'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Expected Goals'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Monthly Goals Chart
+        const monthlyGoalsData = @Html.Raw(Json.Serialize(Model.MonthlyGoals));
+        const monthlyGoalsCtx = document.getElementById('monthlyGoalsChart').getContext('2d');
+        new Chart(monthlyGoalsCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyGoalsData.map(m => m.label),
+                datasets: [{
+                    label: 'Goals',
+                    data: monthlyGoalsData.map(m => m.value),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

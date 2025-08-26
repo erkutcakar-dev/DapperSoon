@@ -1,7 +1,12 @@
+using DapperSoon.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add FootballStatsDb as a service
+builder.Services.AddScoped<FootballStatsDb>();
 
 var app = builder.Build();
 

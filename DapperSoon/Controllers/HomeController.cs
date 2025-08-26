@@ -15,7 +15,7 @@ namespace DapperSoon.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Stats");
         }
 
         public IActionResult Privacy()

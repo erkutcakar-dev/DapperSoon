@@ -1,0 +1,213 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Player Statistics - Filtered List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Player Statistics</h4>
+                        <p class="card-description">Search and filter player performance data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Form -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="form-inline">
+                            <div class="form-group mr-3">
+                                <label for="search" class="mr-2">Search Player:</label>
+                                <input type="text" class="form-control" id="search" name="search" value="@Model.Search" placeholder="Enter player name...">
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="position" class="mr-2">Position:</label>
+                                <select class="form-control" id="position" name="position">
+                                    <option value="">All Positions</option>
+                                    @foreach (var pos in Model.Positions)
+                                    {
+                                        <option value="@pos" selected="@(Model.Position == pos)">@pos</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="pageSize" class="mr-2">Per Page:</label>
+                                <select class="form-control" id="pageSize" name="pageSize">
+                                    <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                                    <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                                    <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <a href="@Url.Action("FilteredList")" class="btn btn-secondary ml-2">Clear</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Results: @Model.TotalCount players found</h5>
+                            <div>
+                                <span class="text-muted">Page @Model.PageNumber of @Model.TotalPages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Table -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Player Name</th>
+                                        <th>Team</th>
+                                        <th>Position</th>
+                                        <th>Age</th>
+                                        <th>Nationality</th>
+                                        <th>Goals</th>
+                                        <th>Assists</th>
+                                        <th>xGoals</th>
+                                        <th>xAssists</th>
+                                        <th>Games</th>
+                                        <th>Minutes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var player in Model.Players)
+                                    {
+                                        <tr>
+                                            <td><strong>@player.PlayerName</strong></td>
+                                            <td>@player.TeamName</td>
+                                            <td><span class="badge badge-info">@player.Position</span></td>
+                                            <td>@player.Age</td>
+                                            <td>@player.Nationality</td>
+                                            <td><span class="badge badge-success">@player.Goals</span></td>
+                                            <td><span class="badge badge-primary">@player.Assists</span></td>
+                                            <td>@player.xGoals.ToString("F1")</td>
+                                            <td>@player.xAssists.ToString("F1")</td>
+                                            <td>@player.GamesPlayed</td>
+                                            <td>@player.MinutesPlayed</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="row">
+                <div class="col-12 grid-margin">
+                    <div class="card">
+                        <div class="card-body">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    @if (Model.PageNumber > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a>
+                                        </li>
+                                    }
+
+                                    @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                                    {
+                                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = i, pageSize = Model.PageSize })">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (Model.PageNumber < Model.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Export Options -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Export Options</h6>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm" onclick="exportToCSV()">
+                                    <i class="mdi mdi-download"></i> Export CSV
+                                </button>
+                                <button class="btn btn-outline-success btn-sm ml-2" onclick="printTable()">
+                                    <i class="mdi mdi-printer"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportToCSV() {
+            const table = document.querySelector('table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const csvContent = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                return cells.map(cell => {
+                    // Remove HTML tags and clean text
+                    const text = cell.textContent.trim().replace(/\s+/g, ' ');
+                    return `"${text}"`;
+                }).join(',');
+            }).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'player_statistics.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function printTable() {
+            window.print();
+        }
+
+        // Auto-submit form when page size changes
+        document.getElementById('pageSize').addEventListener('change', function() {
+            this.form.submit();
+        });
+    </script>
+}
