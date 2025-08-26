@@ -26,6 +26,8 @@ namespace DapperSoon.Controllers
             var totalTeams = conn.ExecuteScalar<int>("SELECT COUNT(*) FROM teams");
             var totalLeagues = conn.ExecuteScalar<int>("SELECT COUNT(*) FROM leagues");
             var averageGoalsPerGame = conn.ExecuteScalar<double>("SELECT AVG(CAST(homeGoals + awayGoals AS FLOAT)) FROM games");
+            var totalYellowCards = conn.ExecuteScalar<int>("SELECT SUM(CASE WHEN yellowCard = 1 THEN 1 ELSE 0 END) FROM appearances");
+            var totalRedCards = conn.ExecuteScalar<int>("SELECT SUM(CASE WHEN redCard = 1 THEN 1 ELSE 0 END) FROM appearances");
 
             var widgets = new List<DashboardWidgetDto>
             {
@@ -34,7 +36,9 @@ namespace DapperSoon.Controllers
                 new() { WidgetName = "Total Goals", Value = totalGoals, Icon = "fas fa-bullseye", Color = "warning", Description = "Goals scored" },
                 new() { WidgetName = "Total Teams", Value = totalTeams, Icon = "fas fa-flag", Color = "info", Description = "Active teams" },
                 new() { WidgetName = "Total Leagues", Value = totalLeagues, Icon = "fas fa-trophy", Color = "danger", Description = "Competitions" },
-                new() { WidgetName = "Avg Goals/Game", Value = (int)Math.Round(averageGoalsPerGame, 1), Icon = "fas fa-chart-line", Color = "secondary", Description = "Goals per match" }
+                new() { WidgetName = "Avg Goals/Game", Value = (int)Math.Round(averageGoalsPerGame, 1), Icon = "fas fa-chart-line", Color = "secondary", Description = "Goals per match" },
+                new() { WidgetName = "Yellow Cards", Value = totalYellowCards, Icon = "fas fa-exclamation-triangle", Color = "warning", Description = "Total yellow cards" },
+                new() { WidgetName = "Red Cards", Value = totalRedCards, Icon = "fas fa-times-circle", Color = "danger", Description = "Total red cards" }
             };
 
             // Top Scorers
