@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	@await Html.PartialAsync("_HeadPartial")
+</head>
+
+<body>
+	<div class="container-scroller">
+
+		@await Html.PartialAsync("_SidebarPartial")
+		<!-- partial -->
+		<div class="container-fluid page-body-wrapper">
+
+			@await Html.PartialAsync("_NavbarPartial")
+			<!-- cards -->
+			<div class="main-panel">
+				<div class="content-wrapper">
+					@RenderBody()
+				</div>
+				@await Html.PartialAsync("_FooterPartial")
+
+			</div>
+
+		</div>
+
+	</div>
+
+	@await Html.PartialAsync("_ScriptsPartial")
+	@RenderSection("Scripts", required: false)
+</body>
+</html>
