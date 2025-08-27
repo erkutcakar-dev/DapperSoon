@@ -1,0 +1,221 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Fair Play Table";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Fair Play Table</h4>
+                        <p class="card-description">View team discipline statistics - fouls, red cards, and yellow cards across leagues and seasons</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Form -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="form-inline">
+                            <div class="form-group mr-3">
+                                <label for="search" class="mr-2">Search Team:</label>
+                                <input type="text" class="form-control" id="search" name="search" value="@Model.Search" placeholder="Enter team name...">
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="league" class="mr-2">League:</label>
+                                <select class="form-control" id="league" name="league">
+                                    <option value="">All Leagues</option>
+                                    @foreach (var leagueName in Model.AvailableLeagues)
+                                    {
+                                        <option value="@leagueName" selected="@(Model.League == leagueName)">@leagueName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="selectedSeason" class="mr-2">Season:</label>
+                                <select class="form-control" id="selectedSeason" name="selectedSeason">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="pageSize" class="mr-2">Per Page:</label>
+                                <select class="form-control" id="pageSize" name="pageSize">
+                                    <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                                    <option value="15" selected="@(Model.PageSize == 15)">15</option>
+                                    <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <a href="@Url.Action("FairPlayTable")" class="btn btn-secondary ml-2">Clear</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Results: @Model.TotalCount teams found</h5>
+                            <div>
+                                <span class="text-muted">Page @Model.PageNumber of @Model.TotalPages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fair Play Table -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Team</th>
+                                        <th>League</th>
+                                        <th>Fouls</th>
+                                        <th>Yellow Cards</th>
+                                        <th>Red Cards</th>
+                                        <th>Fair Play Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Model.FairPlayData)
+                                    {
+                                        var fairPlayScore = team.Fouls + (team.YellowCards * 2) + (team.RedCards * 5);
+                                        <tr>
+                                            <td><strong>@team.TeamName</strong></td>
+                                            <td><span class="badge badge-info">@team.LeagueName</span></td>
+                                            <td><span class="badge badge-warning">@team.Fouls</span></td>
+                                            <td><span class="badge badge-secondary">@team.YellowCards</span></td>
+                                            <td><span class="badge badge-danger">@team.RedCards</span></td>
+                                            <td><span class="badge @(fairPlayScore > 50 ? "badge-danger" : fairPlayScore > 25 ? "badge-warning" : "badge-success")">@fairPlayScore</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted mr-2">Show:</span>
+                                    <form method="get" class="d-inline">
+                                        <input type="hidden" name="selectedSeason" value="@Model.SelectedSeason" />
+                                        <input type="hidden" name="search" value="@Model.Search" />
+                                        <input type="hidden" name="league" value="@Model.League" />
+                                        <input type="hidden" name="pageNumber" value="1" />
+                                        <select name="pageSize" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                            <option value="5" selected="@(Model.PageSize == 5)">5</option>
+                                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                                            <option value="15" selected="@(Model.PageSize == 15)">15</option>
+                                            <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                                        </select>
+                                    </form>
+                                    <span class="text-muted ml-2">entries</span>
+                                </div>
+                                
+                                <nav aria-label="Fair Play Pagination">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <!-- Previous Page -->
+                                        @if (Model.PageNumber > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.PageNumber - 1)&pageSize=@Model.PageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">
+                                                    <i class="mdi mdi-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-left"></i></span>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Page Numbers -->
+                                        @{
+                                            var startPage = Math.Max(1, Model.PageNumber - 2);
+                                            var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                                        }
+                                        
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=1&pageSize=@Model.PageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">1</a>
+                                            </li>
+                                            @if (startPage > 2)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                        }
+                                        
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                                <a class="page-link" href="?pageNumber=@i&pageSize=@Model.PageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">@i</a>
+                                            </li>
+                                        }
+                                        
+                                        @if (endPage < Model.TotalPages)
+                                        {
+                                            @if (endPage < Model.TotalPages - 1)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@Model.TotalPages&pageSize=@Model.PageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">@Model.TotalPages</a>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Next Page -->
+                                        @if (Model.PageNumber < Model.TotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.PageNumber + 1)&pageSize=@Model.PageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">
+                                                    <i class="mdi mdi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-right"></i></span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

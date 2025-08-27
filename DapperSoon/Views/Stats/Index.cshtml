@@ -51,31 +51,46 @@
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Top Scorers</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">Top Scorers</h4>
+                            <form method="get" class="d-flex align-items-center">
+                                <select name="selectedSeason" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </form>
+                        </div>
                         <canvas id="topScorersChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Team Statistics Chart -->
+            <!-- Top Red Cards Chart -->
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="card-title mb-0">Team Statistics Overview</h4>
-                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#teamStatsModal">
-                                <i class="mdi mdi-filter-variant"></i> View Details
-                            </button>
+                            <h4 class="card-title mb-0">Top Red Cards</h4>
+                            <form method="get" class="d-flex align-items-center">
+                                <select name="selectedSeason" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </form>
                         </div>
-                        <div class="chartjs-size-monitor">
-                            <div class="chartjs-size-monitor-expand"><div class=""></div></div>
-                            <div class="chartjs-size-monitor-shrink"><div class=""></div></div>
-                        </div>
-                        <canvas id="teamStatsChart" style="height: 350px; display: block;" class="chartjs-render-monitor"></canvas>
+                        <canvas id="topRedCardsChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+
+
 
         <!-- Team Stats and League Stats Row -->
         <div class="row">
@@ -83,7 +98,18 @@
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Team Statistics</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">Team Statistics</h4>
+                            <form method="get" class="d-flex align-items-center">
+                                <select name="selectedSeason" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </form>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -157,68 +183,7 @@
             </div>
         </div>
 
-        <!-- Team Performance Table -->
-        
-    </div>
-</div>
 
-<!-- Team Statistics Modal -->
-<div class="modal fade" id="teamStatsModal" tabindex="-1" role="dialog" aria-labelledby="teamStatsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="teamStatsModalLabel">Team Statistics Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="seasonSelect" class="form-label">Select Season:</label>
-                        <select id="seasonSelect" class="form-control" onchange="loadTeamStatsForSeason()">
-                            <option value="">All Seasons</option>
-                            @foreach (var season in Model.AvailableSeasons)
-                            {
-                                <option value="@season">@season</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <div id="teamStatsTableContainer">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Team</th>
-                                    <th>Goals</th>
-                                    <th>Shots</th>
-                                    <th>Shots On Target</th>
-                                    <th>Fouls</th>
-                                    <th>Red Cards</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teamStatsTableBody">
-                                @foreach (var team in Model.TeamPerformance)
-                                {
-                                    <tr>
-                                        <td><strong>@team.TeamName</strong></td>
-                                        <td><span class="badge badge-success">@team.Goals</span></td>
-                                        <td>@team.Shots</td>
-                                        <td><span class="badge badge-info">@team.ShotsOnTarget</span></td>
-                                        <td>@team.Fouls</td>
-                                        <td><span class="badge badge-danger">@team.RedCards</span></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -251,145 +216,47 @@
             }
         });
 
-        // Goals vs xGoals Scatter Chart
-        const goalsVsXGoalsData = @Html.Raw(Json.Serialize(Model.GoalsVsXGoals));
-        const goalsVsXGoalsCtx = document.getElementById('goalsVsXGoalsChart').getContext('2d');
-        new Chart(goalsVsXGoalsCtx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Players',
-                    data: goalsVsXGoalsData.map(p => ({ x: p.x, y: p.y })),
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Goals'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Expected Goals'
-                        }
-                    }
-                }
-            }
-        });
-
-        // Team Statistics Doughnut Chart
-        const teamStatsData = @Html.Raw(Json.Serialize(Model.TeamPerformanceChartData));
-        const teamStatsCtx = document.getElementById('teamStatsChart').getContext('2d');
+        // Top Red Cards Chart
+        const topRedCardsData = @Html.Raw(Json.Serialize(Model.TeamPerformanceChartData));
         
-        var teamStatsDoughnutData = {
-            datasets: [{
-                data: teamStatsData.map(t => t.goals),
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)',
-                    'rgba(75, 192, 192, 0.5)',
-                    'rgba(153, 102, 255, 0.5)',
-                    'rgba(255, 159, 64, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 2
-            }],
-            labels: teamStatsData.map(t => t.teamName)
-        };
+        console.log('=== RED CARDS DEBUG ===');
+        console.log('Raw data:', topRedCardsData);
+        console.log('Data length:', topRedCardsData ? topRedCardsData.length : 'null/undefined');
         
-        var teamStatsDoughnutOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                animateScale: true,
-                animateRotate: true
-            },
-            cutout: '60%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
-                    }
+        if (topRedCardsData && topRedCardsData.length > 0) {
+            console.log('Creating chart with real data...');
+            console.log('First item:', topRedCardsData[0]);
+            
+            const topRedCardsCtx = document.getElementById('topRedCardsChart').getContext('2d');
+            new Chart(topRedCardsCtx, {
+                type: 'bar',
+                data: {
+                    labels: topRedCardsData.map(t => t.teamName),
+                    datasets: [{
+                        label: 'Red Cards',
+                        data: topRedCardsData.map(t => t.redCards),
+                        backgroundColor: 'rgba(220, 53, 69, 0.6)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed + ' goals';
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
-            }
-        };
-        
-        new Chart(teamStatsCtx, {
-            type: 'doughnut',
-            data: teamStatsDoughnutData,
-            options: teamStatsDoughnutOptions
-        });
-
-        // Function to load team stats for selected season
-        function loadTeamStatsForSeason() {
-            const season = document.getElementById('seasonSelect').value;
-            
-            fetch(`/Stats?selectedSeason=${season}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then(response => response.text())
-            .then(data => {
-                // Update the modal table container
-                document.getElementById('teamStatsTableContainer').innerHTML = data;
-            })
-            .catch(error => {
-                console.error('Error loading team stats:', error);
-                document.getElementById('teamStatsTableContainer').innerHTML = 
-                    '<div class="alert alert-danger">Error loading data. Please try again.</div>';
             });
+            console.log('Chart created successfully!');
+        } else {
+            console.error('No red cards data found!');
+            document.getElementById('topRedCardsChart').style.display = 'none';
         }
 
-        // Update sidebar with team performance info
-        function updateSidebarTeamPerformanceInfo() {
-            const startEntry = @((Model.TeamPerformancePageNumber - 1) * Model.TeamPerformancePageSize + 1);
-            const endEntry = @(Math.Min(Model.TeamPerformancePageNumber * Model.TeamPerformancePageSize, Model.TeamPerformanceTotalCount));
-            const totalEntries = @Model.TeamPerformanceTotalCount;
-            
-            const infoText = `Showing ${startEntry} to ${endEntry} of ${totalEntries} entries`;
-            const sidebarInfo = document.getElementById('sidebarTeamPerformanceInfo');
-            if (sidebarInfo) {
-                sidebarInfo.innerHTML = `<small class="text-muted">${infoText}</small>`;
-            }
-        }
 
-        // Scroll to team performance section
-        function scrollToTeamPerformance() {
-            const element = document.getElementById('teamPerformanceSection');
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
 
-        // Initialize sidebar info on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateSidebarTeamPerformanceInfo();
-        });
+
     </script>
 }

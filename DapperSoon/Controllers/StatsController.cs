@@ -3,6 +3,8 @@ using Dapper;
 using DapperSoon.Context;
 using DapperSoon.Models;
 using DapperSoon.Dtos;
+using System.Data;
+using System.Linq;
 
 namespace DapperSoon.Controllers
 {
@@ -166,7 +168,7 @@ namespace DapperSoon.Controllers
                 SelectedSeason = selectedSeason,
                 GoalsVsXGoals = goalsVsXGoals,
                 TeamPerformance = teamPerformance,
-                TeamPerformanceChartData = teamPerformance.Take(5).Select(t => new { teamName = t.TeamName, goals = t.Goals }).ToList(),
+                TeamPerformanceChartData = GetTopRedCardsData(conn, selectedSeason),
                 TopScorersChartData = topScorers.Take(10).Select(p => new { name = p.PlayerName, goals = p.Goals }).ToList(),
                 // Pagination data for Team Performance
                 TeamPerformancePageNumber = pageNumber,
@@ -182,6 +184,34 @@ namespace DapperSoon.Controllers
             }
 
             return View(dashboardData);
+        }
+
+        private dynamic GetTopRedCardsData(IDbConnection conn, int? selectedSeason)
+        {
+            var redCardsQuery = @"
+                SELECT 
+                    t.name as TeamName,
+                    SUM(ISNULL(ts.redCards, 0)) as RedCards,
+                    SUM(ISNULL(ts.fouls, 0)) as Fouls,
+                    COUNT(CASE WHEN ts.yellowCards != '' AND ts.yellowCards IS NOT NULL THEN 1 END) as YellowCards
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                WHERE (@SelectedSeason IS NULL OR ts.season = @SelectedSeason)
+                GROUP BY t.teamID, t.name
+                HAVING SUM(ISNULL(ts.redCards, 0)) > 0
+                ORDER BY SUM(ISNULL(ts.redCards, 0)) DESC";
+
+            var topRedCards = conn.Query(redCardsQuery, new { SelectedSeason = selectedSeason })
+                                 .Take(10)
+                                 .Select(t => new { 
+                                     teamName = t.TeamName, 
+                                     redCards = (int)t.RedCards,
+                                     fouls = (int)t.Fouls,
+                                     yellowCards = (int)t.YellowCards
+                                 })
+                                 .ToList();
+
+            return topRedCards;
         }
 
         public IActionResult TeamStatistics(string search = "", string league = "", int? selectedSeason = null, int pageNumber = 1, int pageSize = 10)
@@ -268,6 +298,98 @@ namespace DapperSoon.Controllers
             };
 
             return View(teamStatsData);
+        }
+
+        public IActionResult FairPlayTable(string search = "", string league = "", int? selectedSeason = null, int pageNumber = 1, int pageSize = 10)
+        {
+            using var conn = _db.GetConnection();
+
+            // Get available seasons for dropdown
+            var availableSeasons = conn.Query<int>("SELECT DISTINCT season FROM games WHERE season IS NOT NULL ORDER BY season DESC").ToList();
+
+            // Get available leagues for dropdown
+            var availableLeagues = conn.Query<string>("SELECT DISTINCT l.name FROM leagues l ORDER BY l.name").ToList();
+
+            // Build dynamic WHERE clause for filtering
+            var whereConditions = new List<string>();
+            var parameters = new DynamicParameters();
+
+            if (selectedSeason.HasValue)
+            {
+                whereConditions.Add("g.season = @SelectedSeason");
+                parameters.Add("SelectedSeason", selectedSeason.Value);
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                whereConditions.Add("t.name LIKE @Search");
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrEmpty(league))
+            {
+                whereConditions.Add("l.name = @League");
+                parameters.Add("League", league);
+            }
+
+            var whereClause = whereConditions.Count > 0 ? "WHERE " + string.Join(" AND ", whereConditions) : "";
+
+            // Get total count for Fair Play pagination
+            var fairPlayCountQuery = $@"
+                SELECT COUNT(DISTINCT t.teamID)
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                INNER JOIN games g ON ts.gameID = g.gameID
+                INNER JOIN leagues l ON g.leagueID = l.leagueID
+                {whereClause}";
+            
+            var totalFairPlayCount = conn.ExecuteScalar<int>(fairPlayCountQuery, parameters);
+
+            // Fair Play Stats with filters and pagination
+            parameters.Add("Offset", (pageNumber - 1) * pageSize);
+            parameters.Add("PageSize", pageSize);
+
+            var fairPlayQuery = $@"
+                SELECT 
+                    t.name as TeamName,
+                    SUM(ISNULL(ts.fouls, 0)) as Fouls,
+                    SUM(ISNULL(ts.redCards, 0)) as RedCards,
+                    COUNT(CASE WHEN ts.yellowCards != '' AND ts.yellowCards IS NOT NULL THEN 1 END) as YellowCards,
+                    l.name as LeagueName
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                INNER JOIN games g ON ts.gameID = g.gameID
+                INNER JOIN leagues l ON g.leagueID = l.leagueID
+                {whereClause}
+                GROUP BY t.teamID, t.name, l.name
+                ORDER BY SUM(ISNULL(ts.fouls, 0)) DESC
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY";
+
+            var fairPlayData = conn.Query(fairPlayQuery, parameters)
+                                  .Select(fp => new {
+                                      TeamName = fp.TeamName,
+                                      Fouls = (int)fp.Fouls,
+                                      RedCards = (int)fp.RedCards,
+                                      YellowCards = (int)fp.YellowCards,
+                                      LeagueName = fp.LeagueName
+                                  }).ToList();
+
+            var fairPlayTableData = new
+            {
+                FairPlayData = fairPlayData,
+                AvailableSeasons = availableSeasons,
+                AvailableLeagues = availableLeagues,
+                Search = search,
+                League = league,
+                SelectedSeason = selectedSeason,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalFairPlayCount,
+                TotalPages = (int)Math.Ceiling((double)totalFairPlayCount / pageSize)
+            };
+
+            return View(fairPlayTableData);
         }
 
         public IActionResult FilteredList(string search = "", string position = "", int pageNumber = 1, int pageSize = 20)
