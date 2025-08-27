@@ -1,0 +1,29 @@
+@model dynamic
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Team</th>
+                <th>Goals</th>
+                <th>Shots</th>
+                <th>Shots On Target</th>
+                <th>Fouls</th>
+                <th>Red Cards</th>
+            </tr>
+        </thead>
+        <tbody id="teamStatsTableBody">
+            @foreach (var team in Model.TeamPerformance)
+            {
+                <tr>
+                    <td><strong>@team.TeamName</strong></td>
+                    <td><span class="badge badge-success">@team.Goals</span></td>
+                    <td>@team.Shots</td>
+                    <td><span class="badge badge-info">@team.ShotsOnTarget</span></td>
+                    <td>@team.Fouls</td>
+                    <td><span class="badge badge-danger">@team.RedCards</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

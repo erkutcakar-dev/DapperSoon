@@ -15,9 +15,15 @@ namespace DapperSoon.Controllers
             _db = db;
         }
 
-        public IActionResult Index(int? selectedSeason = null)
+        public IActionResult Index(int? selectedSeason = null, int pageNumber = 1, int pageSize = 10)
         {
             using var conn = _db.GetConnection();
+
+            // Set default season to 2020 if none selected
+            if (selectedSeason == null)
+            {
+                selectedSeason = 2020;
+            }
 
             // Dashboard Widgets
             var totalGames = conn.ExecuteScalar<int>("SELECT COUNT(*) FROM games");
@@ -117,16 +123,37 @@ namespace DapperSoon.Controllers
                 ORDER BY SUM(a.goals) DESC
             ").Take(20).ToList();
 
-            // Monthly Goals Chart
-            var monthlyGoals = conn.Query<LineChartDataDto>(@"
+            // Get total count for Team Performance pagination
+            var teamPerformanceCountQuery = @"
+                SELECT COUNT(DISTINCT t.teamID)
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                WHERE (@SelectedSeason IS NULL OR ts.season = @SelectedSeason)";
+            
+            var totalTeamPerformanceCount = conn.ExecuteScalar<int>(teamPerformanceCountQuery, new { SelectedSeason = selectedSeason });
+
+            // Team Performance Stats with season filter and pagination
+            var teamPerformanceQuery = @"
                 SELECT 
-                    FORMAT(g.date, 'yyyy-MM') as Label,
-                    SUM(g.homeGoals + g.awayGoals) as Value
-                FROM games g
-                WHERE g.date >= DATEADD(MONTH, -12, GETDATE())
-                GROUP BY FORMAT(g.date, 'yyyy-MM')
-                ORDER BY Label
-            ").ToList();
+                    t.name as TeamName,
+                    SUM(ts.goals) as Goals,
+                    SUM(ts.shots) as Shots,
+                    SUM(ts.shotsOnTarget) as ShotsOnTarget,
+                    SUM(ts.fouls) as Fouls,
+                    SUM(ts.redCards) as RedCards
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                WHERE (@SelectedSeason IS NULL OR ts.season = @SelectedSeason)
+                GROUP BY t.teamID, t.name
+                ORDER BY SUM(ts.goals) DESC
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY";
+
+            var teamPerformance = conn.Query<TeamPerformanceDto>(teamPerformanceQuery, new { 
+                SelectedSeason = selectedSeason,
+                Offset = (pageNumber - 1) * pageSize,
+                PageSize = pageSize
+            }).ToList();
 
             var dashboardData = new
             {
@@ -138,11 +165,109 @@ namespace DapperSoon.Controllers
                 AvailableSeasons = availableSeasons,
                 SelectedSeason = selectedSeason,
                 GoalsVsXGoals = goalsVsXGoals,
-                MonthlyGoals = monthlyGoals,
-                TopScorersChartData = topScorers.Take(10).Select(p => new { name = p.PlayerName, goals = p.Goals }).ToList()
+                TeamPerformance = teamPerformance,
+                TeamPerformanceChartData = teamPerformance.Take(5).Select(t => new { teamName = t.TeamName, goals = t.Goals }).ToList(),
+                TopScorersChartData = topScorers.Take(10).Select(p => new { name = p.PlayerName, goals = p.Goals }).ToList(),
+                // Pagination data for Team Performance
+                TeamPerformancePageNumber = pageNumber,
+                TeamPerformancePageSize = pageSize,
+                TeamPerformanceTotalCount = totalTeamPerformanceCount,
+                TeamPerformanceTotalPages = (int)Math.Ceiling((double)totalTeamPerformanceCount / pageSize)
             };
 
+            // Check if this is an AJAX request for modal content
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TeamStatsModal", dashboardData);
+            }
+
             return View(dashboardData);
+        }
+
+        public IActionResult TeamStatistics(string search = "", string league = "", int? selectedSeason = null, int pageNumber = 1, int pageSize = 10)
+        {
+            using var conn = _db.GetConnection();
+
+            // Get available seasons for dropdown
+            var availableSeasons = conn.Query<int>("SELECT DISTINCT season FROM games WHERE season IS NOT NULL ORDER BY season DESC").ToList();
+
+            // Get available leagues for dropdown
+            var availableLeagues = conn.Query<string>("SELECT DISTINCT l.name FROM leagues l ORDER BY l.name").ToList();
+
+            // Build dynamic WHERE clause for filtering
+            var whereConditions = new List<string>();
+            var parameters = new DynamicParameters();
+
+            if (selectedSeason.HasValue)
+            {
+                whereConditions.Add("g.season = @SelectedSeason");
+                parameters.Add("SelectedSeason", selectedSeason.Value);
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                whereConditions.Add("t.name LIKE @Search");
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrEmpty(league))
+            {
+                whereConditions.Add("l.name = @League");
+                parameters.Add("League", league);
+            }
+
+            var whereClause = whereConditions.Count > 0 ? "WHERE " + string.Join(" AND ", whereConditions) : "";
+
+            // Get total count for Team Performance pagination
+            var teamPerformanceCountQuery = $@"
+                SELECT COUNT(DISTINCT t.teamID)
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                INNER JOIN games g ON ts.gameID = g.gameID
+                INNER JOIN leagues l ON g.leagueID = l.leagueID
+                {whereClause}";
+            
+            var totalTeamPerformanceCount = conn.ExecuteScalar<int>(teamPerformanceCountQuery, parameters);
+
+            // Team Performance Stats with filters and pagination
+            var teamPerformanceQuery = $@"
+                SELECT 
+                    t.name as TeamName,
+                    SUM(ts.goals) as Goals,
+                    SUM(ts.shots) as Shots,
+                    SUM(ts.shotsOnTarget) as ShotsOnTarget,
+                    SUM(ts.fouls) as Fouls,
+                    SUM(ts.redCards) as RedCards
+                FROM teamstats ts
+                INNER JOIN teams t ON ts.teamID = t.teamID
+                INNER JOIN games g ON ts.gameID = g.gameID
+                INNER JOIN leagues l ON g.leagueID = l.leagueID
+                {whereClause}
+                GROUP BY t.teamID, t.name
+                ORDER BY SUM(ts.goals) DESC
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY";
+
+            parameters.Add("Offset", (pageNumber - 1) * pageSize);
+            parameters.Add("PageSize", pageSize);
+
+            var teamPerformance = conn.Query<TeamPerformanceDto>(teamPerformanceQuery, parameters).ToList();
+
+            var teamStatsData = new
+            {
+                TeamPerformance = teamPerformance,
+                AvailableSeasons = availableSeasons,
+                AvailableLeagues = availableLeagues,
+                SelectedSeason = selectedSeason,
+                Search = search,
+                League = league,
+                TeamPerformancePageNumber = pageNumber,
+                TeamPerformancePageSize = pageSize,
+                TeamPerformanceTotalCount = totalTeamPerformanceCount,
+                TeamPerformanceTotalPages = (int)Math.Ceiling((double)totalTeamPerformanceCount / pageSize)
+            };
+
+            return View(teamStatsData);
         }
 
         public IActionResult FilteredList(string search = "", string position = "", int pageNumber = 1, int pageSize = 20)

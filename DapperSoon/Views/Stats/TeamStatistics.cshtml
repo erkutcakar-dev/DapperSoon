@@ -1,0 +1,220 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Team Performance Statistics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Team Performance Statistics</h4>
+                        <p class="card-description">Search and filter team performance data across leagues and seasons</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Form -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="form-inline">
+                            <div class="form-group mr-3">
+                                <label for="search" class="mr-2">Search Team:</label>
+                                <input type="text" class="form-control" id="search" name="search" value="@Model.Search" placeholder="Enter team name...">
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="league" class="mr-2">League:</label>
+                                <select class="form-control" id="league" name="league">
+                                    <option value="">All Leagues</option>
+                                    @foreach (var leagueName in Model.AvailableLeagues)
+                                    {
+                                        <option value="@leagueName" selected="@(Model.League == leagueName)">@leagueName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="selectedSeason" class="mr-2">Season:</label>
+                                <select class="form-control" id="selectedSeason" name="selectedSeason">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="pageSize" class="mr-2">Per Page:</label>
+                                <select class="form-control" id="pageSize" name="pageSize">
+                                    <option value="10" selected="@(Model.TeamPerformancePageSize == 10)">10</option>
+                                    <option value="15" selected="@(Model.TeamPerformancePageSize == 15)">15</option>
+                                    <option value="20" selected="@(Model.TeamPerformancePageSize == 20)">20</option>
+                                    <option value="50" selected="@(Model.TeamPerformancePageSize == 50)">50</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <a href="@Url.Action("TeamStatistics")" class="btn btn-secondary ml-2">Clear</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Results: @Model.TeamPerformanceTotalCount teams found</h5>
+                            <div>
+                                <span class="text-muted">Page @Model.TeamPerformancePageNumber of @Model.TeamPerformanceTotalPages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Performance Table -->
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Team</th>
+                                        <th>Goals</th>
+                                        <th>Shots</th>
+                                        <th>Shots On Target</th>
+                                        <th>Fouls</th>
+                                        <th>Red Cards</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Model.TeamPerformance)
+                                    {
+                                        <tr>
+                                            <td><strong>@team.TeamName</strong></td>
+                                            <td><span class="badge badge-success">@team.Goals</span></td>
+                                            <td>@team.Shots</td>
+                                            <td><span class="badge badge-info">@team.ShotsOnTarget</span></td>
+                                            <td>@team.Fouls</td>
+                                            <td><span class="badge badge-danger">@team.RedCards</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        @if (Model.TeamPerformanceTotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted mr-2">Show:</span>
+                                    <form method="get" class="d-inline">
+                                        <input type="hidden" name="selectedSeason" value="@Model.SelectedSeason" />
+                                        <input type="hidden" name="search" value="@Model.Search" />
+                                        <input type="hidden" name="league" value="@Model.League" />
+                                        <input type="hidden" name="pageNumber" value="1" />
+                                        <select name="pageSize" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                            <option value="5" selected="@(Model.TeamPerformancePageSize == 5)">5</option>
+                                            <option value="10" selected="@(Model.TeamPerformancePageSize == 10)">10</option>
+                                            <option value="15" selected="@(Model.TeamPerformancePageSize == 15)">15</option>
+                                            <option value="20" selected="@(Model.TeamPerformancePageSize == 20)">20</option>
+                                        </select>
+                                    </form>
+                                    <span class="text-muted ml-2">entries</span>
+                                </div>
+                                
+                                <nav aria-label="Team Performance Pagination">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <!-- Previous Page -->
+                                        @if (Model.TeamPerformancePageNumber > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.TeamPerformancePageNumber - 1)&pageSize=@Model.TeamPerformancePageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">
+                                                    <i class="mdi mdi-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-left"></i></span>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Page Numbers -->
+                                        @{
+                                            var startPage = Math.Max(1, Model.TeamPerformancePageNumber - 2);
+                                            var endPage = Math.Min(Model.TeamPerformanceTotalPages, Model.TeamPerformancePageNumber + 2);
+                                        }
+                                        
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=1&pageSize=@Model.TeamPerformancePageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">1</a>
+                                            </li>
+                                            @if (startPage > 2)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                        }
+                                        
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(i == Model.TeamPerformancePageNumber ? "active" : "")">
+                                                <a class="page-link" href="?pageNumber=@i&pageSize=@Model.TeamPerformancePageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">@i</a>
+                                            </li>
+                                        }
+                                        
+                                        @if (endPage < Model.TeamPerformanceTotalPages)
+                                        {
+                                            @if (endPage < Model.TeamPerformanceTotalPages - 1)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@Model.TeamPerformanceTotalPages&pageSize=@Model.TeamPerformancePageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">@Model.TeamPerformanceTotalPages</a>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Next Page -->
+                                        @if (Model.TeamPerformancePageNumber < Model.TeamPerformanceTotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?pageNumber=@(Model.TeamPerformancePageNumber + 1)&pageSize=@Model.TeamPerformancePageSize&selectedSeason=@Model.SelectedSeason&search=@Model.Search&league=@Model.League">
+                                                    <i class="mdi mdi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-right"></i></span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

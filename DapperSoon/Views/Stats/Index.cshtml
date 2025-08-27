@@ -57,12 +57,21 @@
                 </div>
             </div>
 
-            <!-- Goals vs xGoals Scatter Chart -->
+            <!-- Team Statistics Chart -->
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Goals vs Expected Goals</h4>
-                        <canvas id="goalsVsXGoalsChart"></canvas>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">Team Statistics Overview</h4>
+                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#teamStatsModal">
+                                <i class="mdi mdi-filter-variant"></i> View Details
+                            </button>
+                        </div>
+                        <div class="chartjs-size-monitor">
+                            <div class="chartjs-size-monitor-expand"><div class=""></div></div>
+                            <div class="chartjs-size-monitor-shrink"><div class=""></div></div>
+                        </div>
+                        <canvas id="teamStatsChart" style="height: 350px; display: block;" class="chartjs-render-monitor"></canvas>
                     </div>
                 </div>
             </div>
@@ -148,15 +157,66 @@
             </div>
         </div>
 
-        <!-- Monthly Goals Chart -->
-        <div class="row">
-            <div class="col-12 grid-margin stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Monthly Goals Trend</h4>
-                        <canvas id="monthlyGoalsChart"></canvas>
+        <!-- Team Performance Table -->
+        
+    </div>
+</div>
+
+<!-- Team Statistics Modal -->
+<div class="modal fade" id="teamStatsModal" tabindex="-1" role="dialog" aria-labelledby="teamStatsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teamStatsModalLabel">Team Statistics Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="seasonSelect" class="form-label">Select Season:</label>
+                        <select id="seasonSelect" class="form-control" onchange="loadTeamStatsForSeason()">
+                            <option value="">All Seasons</option>
+                            @foreach (var season in Model.AvailableSeasons)
+                            {
+                                <option value="@season">@season</option>
+                            }
+                        </select>
                     </div>
                 </div>
+                <div id="teamStatsTableContainer">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Goals</th>
+                                    <th>Shots</th>
+                                    <th>Shots On Target</th>
+                                    <th>Fouls</th>
+                                    <th>Red Cards</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamStatsTableBody">
+                                @foreach (var team in Model.TeamPerformance)
+                                {
+                                    <tr>
+                                        <td><strong>@team.TeamName</strong></td>
+                                        <td><span class="badge badge-success">@team.Goals</span></td>
+                                        <td>@team.Shots</td>
+                                        <td><span class="badge badge-info">@team.ShotsOnTarget</span></td>
+                                        <td>@team.Fouls</td>
+                                        <td><span class="badge badge-danger">@team.RedCards</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -224,29 +284,112 @@
             }
         });
 
-        // Monthly Goals Chart
-        const monthlyGoalsData = @Html.Raw(Json.Serialize(Model.MonthlyGoals));
-        const monthlyGoalsCtx = document.getElementById('monthlyGoalsChart').getContext('2d');
-        new Chart(monthlyGoalsCtx, {
-            type: 'line',
-            data: {
-                labels: monthlyGoalsData.map(m => m.label),
-                datasets: [{
-                    label: 'Goals',
-                    data: monthlyGoalsData.map(m => m.value),
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1
-                }]
+        // Team Statistics Doughnut Chart
+        const teamStatsData = @Html.Raw(Json.Serialize(Model.TeamPerformanceChartData));
+        const teamStatsCtx = document.getElementById('teamStatsChart').getContext('2d');
+        
+        var teamStatsDoughnutData = {
+            datasets: [{
+                data: teamStatsData.map(t => t.goals),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 2
+            }],
+            labels: teamStatsData.map(t => t.teamName)
+        };
+        
+        var teamStatsDoughnutOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                animateScale: true,
+                animateRotate: true
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + ' goals';
+                        }
                     }
                 }
             }
+        };
+        
+        new Chart(teamStatsCtx, {
+            type: 'doughnut',
+            data: teamStatsDoughnutData,
+            options: teamStatsDoughnutOptions
+        });
+
+        // Function to load team stats for selected season
+        function loadTeamStatsForSeason() {
+            const season = document.getElementById('seasonSelect').value;
+            
+            fetch(`/Stats?selectedSeason=${season}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Update the modal table container
+                document.getElementById('teamStatsTableContainer').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Error loading team stats:', error);
+                document.getElementById('teamStatsTableContainer').innerHTML = 
+                    '<div class="alert alert-danger">Error loading data. Please try again.</div>';
+            });
+        }
+
+        // Update sidebar with team performance info
+        function updateSidebarTeamPerformanceInfo() {
+            const startEntry = @((Model.TeamPerformancePageNumber - 1) * Model.TeamPerformancePageSize + 1);
+            const endEntry = @(Math.Min(Model.TeamPerformancePageNumber * Model.TeamPerformancePageSize, Model.TeamPerformanceTotalCount));
+            const totalEntries = @Model.TeamPerformanceTotalCount;
+            
+            const infoText = `Showing ${startEntry} to ${endEntry} of ${totalEntries} entries`;
+            const sidebarInfo = document.getElementById('sidebarTeamPerformanceInfo');
+            if (sidebarInfo) {
+                sidebarInfo.innerHTML = `<small class="text-muted">${infoText}</small>`;
+            }
+        }
+
+        // Scroll to team performance section
+        function scrollToTeamPerformance() {
+            const element = document.getElementById('teamPerformanceSection');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Initialize sidebar info on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSidebarTeamPerformanceInfo();
         });
     </script>
 }
