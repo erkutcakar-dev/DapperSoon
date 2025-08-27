@@ -283,39 +283,57 @@ namespace DapperSoon.Controllers
                 parameters.Add("Search", $"%{search}%");
             }
 
-            if (!string.IsNullOrEmpty(position))
-            {
-                whereClause += " AND a.position = @Position";
-                parameters.Add("Position", position);
-            }
+            // Position filter will be applied later in the CTE result
+            parameters.Add("Position", position);
 
-            // Get total count for pagination
-            var totalCount = conn.ExecuteScalar<int>($@"
-                SELECT COUNT(*)
-                FROM players p
-                {whereClause}
-            ", parameters);
+            // Get total count for pagination (distinct players only)
+            var totalCountQuery = $@"
+                WITH PlayerStats AS (
+                    SELECT DISTINCT
+                        p.playerID,
+                        (SELECT TOP 1 a2.position 
+                         FROM appearances a2 
+                         WHERE a2.playerID = p.playerID 
+                         GROUP BY a2.position 
+                         ORDER BY SUM(a2.time) DESC) as Position
+                    FROM players p
+                    LEFT JOIN appearances a ON p.playerID = a.playerID
+                    {whereClause}
+                )
+                SELECT COUNT(*) FROM PlayerStats
+                {(string.IsNullOrEmpty(position) ? "" : "WHERE Position = @Position")}";
+            
+            var totalCount = conn.ExecuteScalar<int>(totalCountQuery, parameters);
 
-            // Get paginated results
+            // Get paginated results with primary position (most played)
             var players = conn.Query<PlayerPerformanceDto>($@"
-                SELECT 
-                    p.playerID,
-                    p.name as PlayerName,
-                    '' as TeamName,
-                    a.position as Position,
-                    0 as Age,
-                    '' as Nationality,
-                    SUM(ISNULL(a.goals, 0)) as Goals,
-                    SUM(ISNULL(a.assists, 0)) as Assists,
-                    SUM(ISNULL(a.xGoals, 0)) as xGoals,
-                    SUM(ISNULL(a.xAssists, 0)) as xAssists,
-                    COUNT(DISTINCT a.gameID) as GamesPlayed,
-                    SUM(ISNULL(a.time, 0)) as MinutesPlayed
-                FROM players p
-                LEFT JOIN appearances a ON p.playerID = a.playerID
-                {whereClause}
-                GROUP BY p.playerID, p.name, a.position
-                ORDER BY p.name
+                WITH PlayerStats AS (
+                    SELECT 
+                        p.playerID,
+                        p.name as PlayerName,
+                        '' as TeamName,
+                        -- Get the position where player played the most minutes
+                        (SELECT TOP 1 a2.position 
+                         FROM appearances a2 
+                         WHERE a2.playerID = p.playerID 
+                         GROUP BY a2.position 
+                         ORDER BY SUM(a2.time) DESC) as Position,
+                        0 as Age,
+                        '' as Nationality,
+                        SUM(ISNULL(a.goals, 0)) as Goals,
+                        SUM(ISNULL(a.assists, 0)) as Assists,
+                        SUM(ISNULL(a.xGoals, 0)) as xGoals,
+                        SUM(ISNULL(a.xAssists, 0)) as xAssists,
+                        COUNT(DISTINCT a.gameID) as GamesPlayed,
+                        SUM(ISNULL(a.time, 0)) as MinutesPlayed
+                    FROM players p
+                    LEFT JOIN appearances a ON p.playerID = a.playerID
+                    {whereClause}
+                    GROUP BY p.playerID, p.name
+                )
+                SELECT * FROM PlayerStats
+                {(string.IsNullOrEmpty(position) ? "" : "WHERE Position = @Position")}
+                ORDER BY PlayerName
                 OFFSET @Offset ROWS
                 FETCH NEXT @PageSize ROWS ONLY
             ", new
