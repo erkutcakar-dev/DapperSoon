@@ -23,3 +23,4 @@ namespace DapperSoon.Dtos
         public string Color { get; set; } = string.Empty;
     }
 }
+

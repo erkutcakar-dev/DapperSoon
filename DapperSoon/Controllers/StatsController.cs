@@ -15,7 +15,7 @@ namespace DapperSoon.Controllers
             _db = db;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? selectedSeason = null)
         {
             using var conn = _db.GetConnection();
 
@@ -81,8 +81,11 @@ namespace DapperSoon.Controllers
                 ORDER BY Points DESC
             ").ToList();
 
-            // League Stats
-            var leagueStats = conn.Query<LeagueStatsDto>(@"
+            // Get available seasons for dropdown
+            var availableSeasons = conn.Query<int>("SELECT DISTINCT season FROM games WHERE season IS NOT NULL ORDER BY season DESC").ToList();
+
+            // League Stats with season filter
+            var leagueStatsQuery = @"
                 SELECT 
                     l.name as LeagueName,
                     COUNT(DISTINCT g.gameID) as TotalGames,
@@ -94,9 +97,11 @@ namespace DapperSoon.Controllers
                     '' as Country
                 FROM leagues l
                 LEFT JOIN games g ON l.leagueID = g.leagueID
+                WHERE (@SelectedSeason IS NULL OR g.season = @SelectedSeason)
                 GROUP BY l.leagueID, l.name, g.season
-                ORDER BY TotalGames DESC
-            ").ToList();
+                ORDER BY TotalGames DESC";
+
+            var leagueStats = conn.Query<LeagueStatsDto>(leagueStatsQuery, new { SelectedSeason = selectedSeason }).ToList();
 
             // Chart Data for Goals vs xGoals
             var goalsVsXGoals = conn.Query<ScatterChartDataDto>(@"
@@ -130,6 +135,8 @@ namespace DapperSoon.Controllers
                 TeamStats = teamStats,
                 TeamStatsTop10 = teamStats.Take(10).ToList(),
                 LeagueStats = leagueStats,
+                AvailableSeasons = availableSeasons,
+                SelectedSeason = selectedSeason,
                 GoalsVsXGoals = goalsVsXGoals,
                 MonthlyGoals = monthlyGoals,
                 TopScorersChartData = topScorers.Take(10).Select(p => new { name = p.PlayerName, goals = p.Goals }).ToList()

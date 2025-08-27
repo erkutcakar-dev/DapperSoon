@@ -15,3 +15,4 @@ namespace DapperSoon.Dtos
         public float Possession { get; set; }
     }
 }
+

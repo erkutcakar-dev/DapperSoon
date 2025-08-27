@@ -11,3 +11,4 @@ namespace DapperSoon.Dtos
         public string Country { get; set; } = string.Empty;
     }
 }
+

@@ -106,12 +106,24 @@
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">League Statistics</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">League Statistics</h4>
+                            <form method="get" class="d-flex align-items-center">
+                                <select name="selectedSeason" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                    <option value="">All Seasons</option>
+                                    @foreach (var season in Model.AvailableSeasons)
+                                    {
+                                        <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                    }
+                                </select>
+                            </form>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>League</th>
+                                        <th>Season</th>
                                         <th>Games</th>
                                         <th>Goals</th>
                                         <th>Avg Goals</th>
@@ -122,6 +134,7 @@
                                     {
                                         <tr>
                                             <td>@league.LeagueName</td>
+                                            <td><span class="badge badge-info">@league.Season</span></td>
                                             <td>@league.TotalGames</td>
                                             <td>@league.TotalGoals</td>
                                             <td>@league.AverageGoalsPerGame.ToString("F1")</td>
