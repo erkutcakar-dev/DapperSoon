@@ -5,6 +5,29 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .pagination .page-item .page-link {
+        background-color: #495057 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: #fff !important;
+    }
+    .pagination .page-item:hover .page-link {
+        background-color: #5a6268 !important;
+        border-color: #5a6268 !important;
+        color: #fff !important;
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #343a40 !important;
+        border-color: #343a40 !important;
+        color: #6c757d !important;
+    }
+</style>
+
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="row">
@@ -39,12 +62,38 @@
                                 </select>
                             </div>
                             <div class="form-group mr-3">
+                                <label for="league" class="mr-2">League:</label>
+                                <select class="form-control" id="league" name="league">
+                                    <option value="">All Leagues</option>
+                                    @if (Model.AvailableLeagues != null)
+                                    {
+                                        @foreach (var leagueName in Model.AvailableLeagues)
+                                        {
+                                            <option value="@leagueName" selected="@(Model.League == leagueName)">@leagueName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label for="selectedSeason" class="mr-2">Season:</label>
+                                <select class="form-control" id="selectedSeason" name="selectedSeason">
+                                    <option value="">All Seasons</option>
+                                    @if (Model.AvailableSeasons != null)
+                                    {
+                                        @foreach (var season in Model.AvailableSeasons)
+                                        {
+                                            <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
                                 <label for="pageSize" class="mr-2">Per Page:</label>
                                 <select class="form-control" id="pageSize" name="pageSize">
                                     <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                                    <option value="15" selected="@(Model.PageSize == 15)">15</option>
                                     <option value="20" selected="@(Model.PageSize == 20)">20</option>
                                     <option value="50" selected="@(Model.PageSize == 50)">50</option>
-                                    <option value="100" selected="@(Model.PageSize == 100)">100</option>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary">Search</button>
@@ -113,47 +162,111 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Pagination Controls -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted mr-2">Show:</span>
+                                    <form method="get" class="d-inline">
+                                        <input type="hidden" name="search" value="@Model.Search" />
+                                        <input type="hidden" name="position" value="@Model.Position" />
+                                        <input type="hidden" name="league" value="@Model.League" />
+                                        <input type="hidden" name="selectedSeason" value="@Model.SelectedSeason" />
+                                        <input type="hidden" name="pageNumber" value="1" />
+                                        <select name="pageSize" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
+                                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                                            <option value="15" selected="@(Model.PageSize == 15)">15</option>
+                                            <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                                            <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                                        </select>
+                                    </form>
+                                    <span class="text-muted ml-2">entries</span>
+                                </div>
+                                
+                                <nav aria-label="Player Statistics Pagination">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <!-- Previous Page -->
+                                        @if (Model.PageNumber > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, league = Model.League, selectedSeason = Model.SelectedSeason, pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">
+                                                    <i class="mdi mdi-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-left"></i></span>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Page Numbers -->
+                                        @{
+                                            var startPage = Math.Max(1, Model.PageNumber - 2);
+                                            var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                                        }
+                                        
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, league = Model.League, selectedSeason = Model.SelectedSeason, pageNumber = 1, pageSize = Model.PageSize })">1</a>
+                                            </li>
+                                            @if (startPage > 2)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                        }
+                                        
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                                <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, league = Model.League, selectedSeason = Model.SelectedSeason, pageNumber = i, pageSize = Model.PageSize })">@i</a>
+                                            </li>
+                                        }
+                                        
+                                        @if (endPage < Model.TotalPages)
+                                        {
+                                            @if (endPage < Model.TotalPages - 1)
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            }
+                                            <li class="page-item">
+                                                <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, league = Model.League, selectedSeason = Model.SelectedSeason, pageNumber = Model.TotalPages, pageSize = Model.PageSize })">@Model.TotalPages</a>
+                                            </li>
+                                        }
+                                        
+                                        <!-- Next Page -->
+                                        @if (Model.PageNumber < Model.TotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, league = Model.League, selectedSeason = Model.SelectedSeason, pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">
+                                                    <i class="mdi mdi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="mdi mdi-chevron-right"></i></span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Pagination -->
-        @if (Model.TotalPages > 1)
-        {
-            <div class="row">
-                <div class="col-12 grid-margin">
-                    <div class="card">
-                        <div class="card-body">
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center">
-                                    @if (Model.PageNumber > 1)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a>
-                                        </li>
-                                    }
 
-                                    @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
-                                    {
-                                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = i, pageSize = Model.PageSize })">@i</a>
-                                        </li>
-                                    }
-
-                                    @if (Model.PageNumber < Model.TotalPages)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="@Url.Action("FilteredList", new { search = Model.Search, position = Model.Position, pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a>
-                                        </li>
-                                    }
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
 
         <!-- Export Options -->
         <div class="row">

@@ -392,9 +392,13 @@ namespace DapperSoon.Controllers
             return View(fairPlayTableData);
         }
 
-        public IActionResult FilteredList(string search = "", string position = "", int pageNumber = 1, int pageSize = 20)
+        public IActionResult FilteredList(string search = "", string position = "", string league = "", int? selectedSeason = null, int pageNumber = 1, int pageSize = 10)
         {
             using var conn = _db.GetConnection();
+
+            // Get available seasons and leagues for dropdowns
+            var availableSeasons = conn.Query<int>("SELECT DISTINCT season FROM games WHERE season IS NOT NULL ORDER BY season DESC").ToList();
+            var availableLeagues = conn.Query<string>("SELECT DISTINCT l.name FROM leagues l ORDER BY l.name").ToList();
 
             var whereClause = "WHERE 1=1";
             var parameters = new DynamicParameters();
@@ -403,6 +407,18 @@ namespace DapperSoon.Controllers
             {
                 whereClause += " AND p.name LIKE @Search";
                 parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrEmpty(league))
+            {
+                whereClause += " AND l.name = @League";
+                parameters.Add("League", league);
+            }
+
+            if (selectedSeason.HasValue)
+            {
+                whereClause += " AND g.season = @SelectedSeason";
+                parameters.Add("SelectedSeason", selectedSeason.Value);
             }
 
             // Position filter will be applied later in the CTE result
@@ -415,11 +431,17 @@ namespace DapperSoon.Controllers
                         p.playerID,
                         (SELECT TOP 1 a2.position 
                          FROM appearances a2 
+                         INNER JOIN games g2 ON a2.gameID = g2.gameID
+                         INNER JOIN leagues l2 ON g2.leagueID = l2.leagueID
                          WHERE a2.playerID = p.playerID 
+                         {(!string.IsNullOrEmpty(league) ? "AND l2.name = @League" : "")}
+                         {(selectedSeason.HasValue ? "AND g2.season = @SelectedSeason" : "")}
                          GROUP BY a2.position 
                          ORDER BY SUM(a2.time) DESC) as Position
                     FROM players p
                     LEFT JOIN appearances a ON p.playerID = a.playerID
+                    LEFT JOIN games g ON a.gameID = g.gameID
+                    LEFT JOIN leagues l ON g.leagueID = l.leagueID
                     {whereClause}
                 )
                 SELECT COUNT(*) FROM PlayerStats
@@ -428,6 +450,9 @@ namespace DapperSoon.Controllers
             var totalCount = conn.ExecuteScalar<int>(totalCountQuery, parameters);
 
             // Get paginated results with primary position (most played)
+            parameters.Add("Offset", (pageNumber - 1) * pageSize);
+            parameters.Add("PageSize", pageSize);
+
             var players = conn.Query<PlayerPerformanceDto>($@"
                 WITH PlayerStats AS (
                     SELECT 
@@ -437,7 +462,11 @@ namespace DapperSoon.Controllers
                         -- Get the position where player played the most minutes
                         (SELECT TOP 1 a2.position 
                          FROM appearances a2 
+                         INNER JOIN games g2 ON a2.gameID = g2.gameID
+                         INNER JOIN leagues l2 ON g2.leagueID = l2.leagueID
                          WHERE a2.playerID = p.playerID 
+                         {(!string.IsNullOrEmpty(league) ? "AND l2.name = @League" : "")}
+                         {(selectedSeason.HasValue ? "AND g2.season = @SelectedSeason" : "")}
                          GROUP BY a2.position 
                          ORDER BY SUM(a2.time) DESC) as Position,
                         0 as Age,
@@ -450,6 +479,8 @@ namespace DapperSoon.Controllers
                         SUM(ISNULL(a.time, 0)) as MinutesPlayed
                     FROM players p
                     LEFT JOIN appearances a ON p.playerID = a.playerID
+                    LEFT JOIN games g ON a.gameID = g.gameID
+                    LEFT JOIN leagues l ON g.leagueID = l.leagueID
                     {whereClause}
                     GROUP BY p.playerID, p.name
                 )
@@ -458,13 +489,7 @@ namespace DapperSoon.Controllers
                 ORDER BY PlayerName
                 OFFSET @Offset ROWS
                 FETCH NEXT @PageSize ROWS ONLY
-            ", new
-            {
-                Search = $"%{search}%",
-                Position = position,
-                Offset = (pageNumber - 1) * pageSize,
-                PageSize = pageSize
-            }).ToList();
+            ", parameters).ToList();
 
             // Get unique positions for filter dropdown
             var positions = conn.Query<string>("SELECT DISTINCT position FROM appearances WHERE position IS NOT NULL ORDER BY position").ToList();
@@ -474,11 +499,15 @@ namespace DapperSoon.Controllers
                 Players = players,
                 Search = search,
                 Position = position,
+                League = league,
+                SelectedSeason = selectedSeason,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalCount = totalCount,
                 TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
-                Positions = positions
+                Positions = positions,
+                AvailableSeasons = availableSeasons,
+                AvailableLeagues = availableLeagues
             };
 
             return View(viewModel);

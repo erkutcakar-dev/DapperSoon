@@ -5,6 +5,29 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .pagination .page-item .page-link {
+        background-color: #495057 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: #fff !important;
+    }
+    .pagination .page-item:hover .page-link {
+        background-color: #5a6268 !important;
+        border-color: #5a6268 !important;
+        color: #fff !important;
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #343a40 !important;
+        border-color: #343a40 !important;
+        color: #6c757d !important;
+    }
+</style>
+
 <div class="main-panel">
     <div class="content-wrapper">
         <!-- Page Header -->
@@ -106,10 +129,10 @@
                                         <tr>
                                             <td><strong>@team.TeamName</strong></td>
                                             <td><span class="badge badge-info">@team.LeagueName</span></td>
-                                            <td><span class="badge badge-warning">@team.Fouls</span></td>
-                                            <td><span class="badge badge-secondary">@team.YellowCards</span></td>
+                                            <td><span class="badge badge-primary">@team.Fouls</span></td>
+                                            <td><span class="badge badge-warning">@team.YellowCards</span></td>
                                             <td><span class="badge badge-danger">@team.RedCards</span></td>
-                                            <td><span class="badge @(fairPlayScore > 50 ? "badge-danger" : fairPlayScore > 25 ? "badge-warning" : "badge-success")">@fairPlayScore</span></td>
+                                            <td><span class="badge @(fairPlayScore > 50 ? "badge-dark" : fairPlayScore > 25 ? "badge-secondary" : "badge-light text-dark")">@fairPlayScore</span></td>
                                         </tr>
                                     }
                                 </tbody>
