@@ -206,346 +206,92 @@ new Chart(ctx, {
 ## 🎨 UI/UX Özellikleri
 
 ### **Navigation Architecture**
-```
-Sidebar Navigation:
-├── 🏠 Dashboard (Ana sayfa)
-├── 👥 Player Statistics (Oyuncu istatistikleri)  
-├── 🏟️ Team Statistics (Takım istatistikleri)
-└── ⚖️ Fair Play Table (Disiplin tablosu)
-```
-
-### **Profile Integration**
+- **Sidebar Navigation**: Dashboard, Player Statistics, Team Statistics, Fair Play Table
 - **Admin Profile**: Futbol topu ikonu ile kişiselleştirme
 - **Responsive Design**: Mobil ve desktop uyumlu hamburger menü
 - **User Context**: "Erkut Çakar - Football Analyst"
 
 ### **Tema Özelleştirmeleri**
-
-#### **Custom Pagination Styling**
-```css
-.pagination .page-item .page-link {
-    background-color: #495057 !important;
-    border-color: #495057 !important;
-    color: #fff !important;
-}
-
-.pagination .page-item.active .page-link {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-}
-```
-
-#### **Badge Color System**
-```css
-Badge Types:
-├── Success (Goals): #28a745
-├── Info (Shots on Target): #17a2b8
-├── Danger (Red Cards): #dc3545
-├── Warning (Yellow Cards): #ffc107
-├── Primary (Fouls): #007bff
-└── Secondary (Fair Play): #6c757d
-```
+- **Custom Pagination**: Koyu tema ile uyumlu gri tonları
+- **Badge Color System**: Anlamlı renk kodlaması (yeşil: gol, mavi: şut, kırmızı: kart)
+- **Icon Integration**: Material Design Icons
+- **Professional Layout**: Corona teması uyarlaması
 
 ## 📈 İstatistik Hesaplama Algoritmaları
 
 ### **Oyuncu Metrikleri**
-
-#### **Expected Goals (xGoals) Calculation**
-```csharp
-// Precision formatting for xGoals
-xGoals.ToString("F2") // Output: "1.45"
-```
-
-#### **Primary Position Logic**
-```sql
--- En çok oynadığı pozisyon belirleme
-WITH PlayerMinutes AS (
-    SELECT playerID, position, SUM(minutes) as total_minutes
-    FROM appearances 
-    WHERE minutes > 0
-    GROUP BY playerID, position
-)
-SELECT TOP 1 position 
-FROM PlayerMinutes 
-WHERE playerID = @PlayerId 
-ORDER BY total_minutes DESC
-```
+- **Expected Goals (xGoals)**: İki ondalık hassasiyette formatlanmış beklenen gol sayısı
+- **Primary Position Logic**: En çok dakika oynadığı pozisyon CTE ile belirlenir
+- **Unique Players**: Duplicate kayıtlar engellenir
 
 ### **Takım Performans Metrikleri**
-
-#### **Shot Efficiency Calculation**
-```csharp
-public decimal CalculateShootingAccuracy(int shotsOnTarget, int totalShots)
-{
-    if (totalShots == 0) return 0;
-    return Math.Round((decimal)shotsOnTarget / totalShots * 100, 2);
-}
-```
-
-#### **Goal Conversion Rate**
-```csharp
-public decimal CalculateGoalConversion(int goals, int shotsOnTarget)
-{
-    if (shotsOnTarget == 0) return 0;
-    return Math.Round((decimal)goals / shotsOnTarget * 100, 2);
-}
-```
+- **Shot Efficiency**: İsabetli şut yüzdesi hesaplaması
+- **Goal Conversion**: Gol dönüşüm oranı analizi
+- **Discipline Index**: Disiplin durumu değerlendirmesi
 
 ### **Fair Play Scoring System**
-
-#### **Weighted Penalty System**
-```csharp
-public class FairPlayCalculator 
-{
-    private const int FOUL_WEIGHT = 1;
-    private const int YELLOW_CARD_WEIGHT = 2;
-    private const int RED_CARD_WEIGHT = 5;
-    
-    public int CalculateFairPlayScore(int fouls, int yellowCards, int redCards)
-    {
-        return (fouls * FOUL_WEIGHT) + 
-               (yellowCards * YELLOW_CARD_WEIGHT) + 
-               (redCards * RED_CARD_WEIGHT);
-    }
-}
-```
+- **Weighted System**: Faul=1, Sarı kart=2, Kırmızı kart=5 puan
+- **Season Filtering**: Sezona özel disiplin analizi
+- **League Comparison**: Ligalar arası fair play karşılaştırması
 
 ## 🔧 Gelişmiş Özellikler
 
 ### **Filtreleme Sistemi**
-
-#### **Multi-Parameter Search Implementation**
-```csharp
-// Dynamic WHERE clause generation
-var whereConditions = new List<string>();
-var parameters = new DynamicParameters();
-
-if (!string.IsNullOrEmpty(search))
-{
-    whereConditions.Add("p.name LIKE @Search");
-    parameters.Add("Search", $"%{search}%");
-}
-
-if (!string.IsNullOrEmpty(position))
-{
-    whereConditions.Add("a.position = @Position");
-    parameters.Add("Position", position);
-}
-
-string whereClause = whereConditions.Any() 
-    ? "WHERE " + string.Join(" AND ", whereConditions)
-    : "";
-```
-
-#### **Auto-Submit Form Implementation**
-```javascript
-// Instant filter updates
-$('select[name="selectedSeason"]').on('change', function() {
-    $(this).closest('form').submit();
-});
-```
+- **Multi-Parameter Search**: Çoklu filtre desteği (oyuncu adı, pozisyon, liga, sezon)
+- **Dynamic WHERE Clause**: Otomatik SQL sorgu oluşturma
+- **Auto-Submit Forms**: Anında sonuç güncelleme
+- **Parameter Preservation**: Sayfa geçişlerinde filtre korunması
 
 ### **Pagination System**
-
-#### **Smart Navigation Logic**
-```csharp
-public class PaginationHelper
-{
-    public static IEnumerable<int> GetPageNumbers(int currentPage, int totalPages, int maxVisible = 5)
-    {
-        int start = Math.Max(1, currentPage - maxVisible / 2);
-        int end = Math.Min(totalPages, start + maxVisible - 1);
-        
-        return Enumerable.Range(start, end - start + 1);
-    }
-}
-```
-
-#### **Parameter Preservation**
-```html
-<!-- Sayfa geçişlerinde filtreleri koruma -->
-<a href="?pageNumber=@(page)&pageSize=@Model.PageSize&search=@Model.Search&league=@Model.League">
-    @page
-</a>
-```
+- **Smart Navigation**: Akıllı sayfa numaraları (maksimum 5 görünür)
+- **Flexible Page Sizes**: 5, 10, 15, 20, 50 seçenekleri
+- **Total Count Display**: "X to Y of Z entries" gösterimi
+- **Icon Navigation**: Chevron ikonu ile kullanıcı dostu navigasyon
 
 ### **Chart Visualization**
-
-#### **Responsive Chart Configuration**
-```javascript
-Chart.defaults.responsive = true;
-Chart.defaults.maintainAspectRatio = false;
-
-// Dynamic data binding
-const chartData = @Html.Raw(Json.Serialize(Model.ChartData));
-```
-
-#### **Color Theme Integration**
-```javascript
-const colorPalette = {
-    primary: '#007bff',
-    success: '#28a745', 
-    danger: '#dc3545',
-    warning: '#ffc107',
-    info: '#17a2b8'
-};
-```
+- **Responsive Charts**: Mobil uyumlu grafik boyutlandırması
+- **Dynamic Data Binding**: Model'den direkt veri entegrasyonu
+- **Color Theme Integration**: Tutarlı renk paleti
+- **Smooth Animations**: Chart.js ile akıcı geçişler
 
 ## 🚀 Performans Optimizasyonları
 
 ### **Database Optimizations**
-
-#### **Efficient Query Patterns**
-```sql
--- Index-friendly query structure
-SELECT t.name, 
-       SUM(ts.goals) as TotalGoals,
-       SUM(ts.shots) as TotalShots,
-       AVG(CAST(ts.shotsOnTarget AS FLOAT) / NULLIF(ts.shots, 0)) as ShootingAccuracy
-FROM teams t
-INNER JOIN teamstats ts ON t.teamID = ts.teamID
-WHERE ts.season = @Season
-GROUP BY t.teamID, t.name
-ORDER BY TotalGoals DESC
-```
-
-#### **Connection Management**
-```csharp
-// Using pattern for resource management
-using var connection = new SqlConnection(connectionString);
-connection.Open();
-
-var result = await connection.QueryAsync<TeamStatDto>(query, parameters);
-```
-
-#### **Pagination at Database Level**
-```sql
--- Server-side pagination
-SELECT * FROM (
-    SELECT ROW_NUMBER() OVER (ORDER BY goals DESC) as RowNum, *
-    FROM PlayerStats
-    WHERE season = @Season
-) AS NumberedRows
-WHERE RowNum BETWEEN @StartRow AND @EndRow
-```
+- **Efficient Queries**: Index-friendly SQL sorgu yapıları
+- **Connection Management**: Using pattern ile resource yönetimi
+- **Server-side Pagination**: ROW_NUMBER() ile veritabanı seviyesinde sayfalama
+- **Parameterized Queries**: SQL injection koruması ve plan cache optimizasyonu
 
 ### **Frontend Optimizations**
-
-#### **Lazy Loading Implementation**
-```javascript
-// Chart lazy loading
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('topScorersChart')) {
-        initializeTopScorersChart();
-    }
-});
-```
-
-#### **CSS Optimization**
-```css
-/* Critical CSS inlining */
-.main-panel { 
-    margin-left: 260px; 
-    transition: margin-left 0.25s ease; 
-}
-
-@media (max-width: 991px) {
-    .main-panel { margin-left: 0; }
-}
-```
+- **Lazy Loading**: Chart'lar sadece ihtiyaç olduğunda yüklenir
+- **Critical CSS**: Önemli stillerin inline olarak yüklenmesi
+- **Responsive Design**: Mobil-first yaklaşım ile performans
+- **Minimal JavaScript**: Sadece gerekli JS kütüphaneleri
 
 ## 📊 Veri Modelleri
 
 ### **Core Data Transfer Objects**
-
-```csharp
-public class PlayerPerformanceDto
-{
-    public string Name { get; set; }
-    public string Position { get; set; }
-    public string Team { get; set; }
-    public int Goals { get; set; }
-    public int Assists { get; set; }
-    public decimal XGoals { get; set; }
-    public decimal XAssists { get; set; }
-    public int GamesPlayed { get; set; }
-    public int MinutesPlayed { get; set; }
-}
-
-public class TeamPerformanceDto  
-{
-    public string TeamName { get; set; }
-    public int Goals { get; set; }
-    public int Shots { get; set; }
-    public int ShotsOnTarget { get; set; }
-    public int Fouls { get; set; }
-    public int RedCards { get; set; }
-    public decimal ShootingAccuracy => Shots > 0 ? (decimal)ShotsOnTarget / Shots * 100 : 0;
-}
-
-public class FairPlayDto
-{
-    public string TeamName { get; set; }
-    public string League { get; set; }
-    public int Fouls { get; set; }
-    public int YellowCards { get; set; }
-    public int RedCards { get; set; }
-    public int FairPlayScore => Fouls + (YellowCards * 2) + (RedCards * 5);
-}
-```
+- **PlayerPerformanceDto**: Oyuncu performans verileri (Name, Position, Team, Goals, Assists, xGoals, xAssists, Games, Minutes)
+- **TeamPerformanceDto**: Takım performans metrikleri (TeamName, Goals, Shots, ShotsOnTarget, Fouls, RedCards, ShootingAccuracy)
+- **FairPlayDto**: Disiplin tablosu verileri (TeamName, League, Fouls, YellowCards, RedCards, FairPlayScore)
+- **DashboardWidgetDto**: Widget verileri (WidgetName, Value, Icon, Color, Description)
+- **ChartDataDto**: Grafik veri yapısı (Labels, Datasets, Colors)
 
 ## 🔒 Güvenlik ve En İyi Pratikler
 
-### **SQL Injection Prevention**
-```csharp
-// Parameterized queries with Dapper
-var parameters = new DynamicParameters();
-parameters.Add("@Search", search);
-parameters.Add("@Season", season);
-
-var result = connection.Query<PlayerDto>(query, parameters);
-```
-
-### **Input Validation**
-```csharp
-public IActionResult FilteredList(string search, int pageNumber = 1, int pageSize = 10)
-{
-    // Parameter validation
-    pageNumber = Math.Max(1, pageNumber);
-    pageSize = Math.Min(50, Math.Max(5, pageSize));
-    
-    search = search?.Trim();
-    if (search?.Length > 100) search = search.Substring(0, 100);
-}
-```
+### **Security Measures**
+- **SQL Injection Prevention**: Parameterized queries ile Dapper kullanımı
+- **Input Validation**: Kullanıcı girişlerinin sanitize edilmesi
+- **Parameter Validation**: Sayfa boyutu ve sayfa numarası kontrolü
+- **Length Restrictions**: Arama metinleri için maksimum karakter sınırı
 
 ## 📱 Responsive Design
 
 ### **Mobile-First Approach**
-```css
-/* Mobile base styles */
-.container-fluid { padding: 15px; }
-
-/* Tablet breakpoint */
-@media (min-width: 768px) {
-    .container-fluid { padding: 30px; }
-}
-
-/* Desktop breakpoint */  
-@media (min-width: 1200px) {
-    .container-fluid { padding: 40px; }
-}
-```
-
-### **Chart Responsiveness**
-```javascript
-// Responsive chart resizing
-window.addEventListener('resize', function() {
-    Chart.helpers.each(Chart.instances, function(instance) {
-        instance.resize();
-    });
-});
-```
+- **Adaptive Layouts**: Mobile, tablet ve desktop için optimize edilmiş görünüm
+- **Flexible Grid System**: Bootstrap 4.6 grid sistemi
+- **Touch-Friendly**: Mobil dokunmatik deneyimi için optimize edilmiş butonlar
+- **Chart Responsiveness**: Ekran boyutuna göre otomatik grafik yeniden boyutlandırma
 
 ## 🚀 Kurulum ve Çalıştırma
 
@@ -557,36 +303,11 @@ window.addEventListener('resize', function() {
 
 ### **Kurulum Adımları**
 
-1. **Repository'yi klonlayın**
-```bash
-git clone https://github.com/username/DapperSoon.git
-cd DapperSoon
-```
-
-2. **Veritabanı bağlantısını yapılandırın**
-```json
-// appsettings.json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=FootballStats;Trusted_Connection=true;"
-  }
-}
-```
-
-3. **Bağımlılıkları yükleyin**
-```bash
-dotnet restore
-```
-
-4. **Projeyi çalıştırın**
-```bash
-dotnet run
-```
-
-5. **Tarayıcıda açın**
-```
-https://localhost:7206
-```
+1. **Repository'yi klonlayın**: `git clone https://github.com/username/DapperSoon.git`
+2. **Veritabanı bağlantısını yapılandırın**: `appsettings.json` dosyasında connection string'i güncelleyin
+3. **Bağımlılıkları yükleyin**: `dotnet restore`
+4. **Projeyi çalıştırın**: `dotnet run`
+5. **Tarayıcıda açın**: `https://localhost:7206`
 
 ## 📈 Gelecek Geliştirmeler
 
