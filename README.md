@@ -133,9 +133,9 @@ Bu proje çok kapsamlı bir futbol veri analizi yapıyor - binlerce maç, oyuncu
 ### ⚖️ Fair Play Table (Disiplin Tablosu)
 
 #### **Disiplin Metrikleri**
-- **Fouls**: Toplam faul sayısı (mavi badge - `badge-primary`)
-- **Yellow Cards**: Sarı kart sayısı (sarı badge - `badge-warning`)
-- **Red Cards**: Kırmızı kart sayısı (kırmızı badge - `badge-danger`)
+- **Fouls**: Toplam faul sayısı 
+- **Yellow Cards**: Sarı kart sayısı 
+- **Red Cards**: Kırmızı kart sayısı
 
 #### **Fair Play Score Hesaplama**
 ```csharp
