@@ -64,11 +64,10 @@
 #### **Gelişmiş Filtreleme Sistemi**
 ```
 🔍 Arama Filtreleri:
-├── Oyuncu Adı: Text bazlı arama
-├── Pozisyon: GK, DEF, MID, ATT
-├── Liga: Serie A, La Liga, Premier League, Bundesliga, Ligue 1
+├── Oyuncu Adı
+├── Pozisyon
+├── Liga: 
 └── Sezon: 2014-2020 arası tüm sezonlar
-```
 
 #### **Detaylı İstatistik Metrikleri**
 - **Goals**: Toplam gol sayısı
