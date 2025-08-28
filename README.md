@@ -7,7 +7,7 @@
 
 ## 📋 Proje Genel Bakış
 
-**DapperSoon**, ASP.NET Core MVC ve Dapper ORM kullanılarak geliştirilmiş kapsamlı bir futbol istatistik yönetim sistemidir. Corona Bootstrap teması ile modern, responsive ve kullanıcı dostu bir arayüze sahiptir. Profesyonel futbol liglerinin detaylı istatistiklerini analiz etmek ve görselleştirmek için tasarlanmıştır.
+**DapperSoon**, ASP.NET Core MVC ve Dapper ORM kullanılarak geliştirilmiş kapsamlı bir futbol istatistik yönetim sistemidir. Corona Bootstrap teması ile modern, responsive ve kullanıcı dostu bir arayüze sahiptir. Profesyonel futbol liglerinin detaylı istatistiklerini analiz etmek ve görselleştirmek için tasarlanmıştır. 2014-2020 arası Dünyadaki 5 büyük lige ilişkin 11.196.225 veri kullanılmıştır.
 
 ### 🎯 Temel Amaç
 - Futbol takımları ve oyuncularının performans verilerini merkezi bir platformda toplamak
