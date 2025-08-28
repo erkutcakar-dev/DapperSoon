@@ -94,13 +94,7 @@
 
 ### 🏟️ Team Statistics (Takım İstatistikleri)
 
-#### **Kapsamlı Filtreleme**
-```sql
-WHERE conditions:
-├── Team Name LIKE '%search%'
-├── League = @selectedLeague
-└── Season = @selectedSeason
-```
+
 
 #### **Performance Metrikleri**
 - **Goals**: Toplam gol sayısı (yeşil badge)
@@ -126,13 +120,7 @@ WHERE conditions:
 Fair Play Score = Fouls + (Yellow Cards × 2) + (Red Cards × 5)
 ```
 
-#### **Renk Kodlaması Sistemi**
-```css
-Fair Play Score Badges:
-├── 0-20 puan: badge-light (İyi - Açık gri)
-├── 21-50 puan: badge-secondary (Orta - Gri)  
-└── 51+ puan: badge-dark (Kötü - Siyah)
-```
+
 
 ## 🛠️ Teknik Altyapı
 
@@ -145,16 +133,7 @@ Fair Play Score Badges:
 - **Dynamic Objects**: Esnek veri modelleme yapısı
 - **LINQ**: Güçlü veri manipülasyonu
 
-#### **Database Schema**
-```
-📊 Veritabanı Tabloları:
-├── Teams (teamID, name, founded)
-├── Players (playerID, name, dateOfBirth)  
-├── Appearances (playerID, gameID, goals, assists, minutes)
-├── TeamStats (teamID, season, goals, shots, fouls)
-├── Games (gameID, homeTeamID, awayTeamID, season)
-└── Leagues (leagueID, name, country)
-```
+
 
 ### **Frontend Technologies**
 
