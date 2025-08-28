@@ -146,26 +146,14 @@ Fair Play Score Badges:
 - **LINQ**: Güçlü veri manipülasyonu
 
 #### **Database Schema**
-```sql
-Database Tables:
+```
+📊 Veritabanı Tabloları:
 ├── Teams (teamID, name, founded)
 ├── Players (playerID, name, dateOfBirth)  
 ├── Appearances (playerID, gameID, goals, assists, minutes)
 ├── TeamStats (teamID, season, goals, shots, fouls)
 ├── Games (gameID, homeTeamID, awayTeamID, season)
 └── Leagues (leagueID, name, country)
-```
-
-#### **Data Access Patterns**
-```csharp
-// CTE kullanımı - Oyuncu pozisyon belirleme
-WITH PlayerPositions AS (
-    SELECT playerID, position, 
-           SUM(minutes) as TotalMinutes,
-           ROW_NUMBER() OVER (PARTITION BY playerID ORDER BY SUM(minutes) DESC) as rn
-    FROM appearances 
-    GROUP BY playerID, position
-)
 ```
 
 ### **Frontend Technologies**
@@ -181,26 +169,38 @@ WITH PlayerPositions AS (
 - **jQuery 3.6**: DOM manipülasyonu
 - **Bootstrap JS**: Modal, dropdown, collapse bileşenleri
 
-#### **Chart Configurations**
-```javascript
-// Bar Chart Example - Top Scorers
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: playerNames,
-        datasets: [{
-            label: 'Goals',
-            data: goalCounts,
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
+## 🏗️ Proje Mimarisi
+
+```
+📁 DapperSoon/
+├── 🎮 Controllers/
+│   ├── HomeController.cs
+│   └── StatsController.cs (Ana istatistik logic)
+├── 📊 Models/
+│   ├── Team.cs, Player.cs, Game.cs
+│   ├── Appearance.cs, TeamStat.cs
+│   └── League.cs, Shot.cs
+├── 📋 Dtos/
+│   ├── PlayerPerformanceDto.cs
+│   ├── TeamPerformanceDto.cs
+│   ├── DashboardWidgetDto.cs
+│   └── ChartDataDto.cs
+├── 🗄️ Context/
+│   └── FootballStatsDb.cs (Dapper bağlantı)
+├── 🖼️ Views/
+│   ├── Stats/
+│   │   ├── Index.cshtml (Dashboard)
+│   │   ├── FilteredList.cshtml (Player Stats)
+│   │   ├── TeamStatistics.cshtml
+│   │   └── FairPlayTable.cshtml
+│   └── Shared/
+│       ├── _Layout.cshtml (Ana layout)
+│       ├── _Widget.cshtml (Dashboard widgets)
+│       └── _Chart.cshtml (Grafik partial)
+└── 🎨 wwwroot/
+    ├── corona-theme/ (Bootstrap tema)
+    ├── css/, js/ (Özel stiller)
+    └── lib/ (Kütüphaneler)
 ```
 
 ## 🎨 UI/UX Özellikleri
@@ -309,29 +309,9 @@ new Chart(ctx, {
 4. **Projeyi çalıştırın**: `dotnet run`
 5. **Tarayıcıda açın**: `https://localhost:7206`
 
-## 📈 Gelecek Geliştirmeler
-
-### **Planlanmış Özellikler**
-- [ ] Real-time data updates via SignalR
-- [ ] Export functionality (PDF, Excel)
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] API endpoints for mobile app
-- [ ] Machine learning predictions
-- [ ] User role management
-- [ ] Data visualization enhancements
-
-### **Teknik İyileştirmeler**
-- [ ] Redis caching implementation
-- [ ] GraphQL API integration
-- [ ] Microservices architecture
-- [ ] Docker containerization
-- [ ] CI/CD pipeline setup
-- [ ] Performance monitoring
-- [ ] Automated testing suite
-
 ## 🤝 Katkıda Bulunma
 
+Bu projeye katkıda bulunmak isterseniz:
 1. Fork edin
 2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
 3. Commit yapın (`git commit -m 'Add amazing feature'`)
@@ -340,11 +320,12 @@ new Chart(ctx, {
 
 ## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
+Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 👨‍💻 Geliştirici
 
-**Erkut Çakar** - Football Analyst & Developer
+**Erkut Çakar** - Football Analyst & Developer  
+🔗 GitHub: https://github.com/erkutcakar-dev
 
 ---
 
