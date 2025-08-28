@@ -16,8 +16,16 @@
 - La Liga
 - Ligue 1
 
-
-
+### 🎯 İncelenen Metrikler:
+- Gol sayıları ve expected goals (xGoals)
+- Asist sayıları ve expected assists (xAssists)
+- Maç ve dakika sayıları
+- Şut sayıları ve isabetli şutlar
+- Faul, sarı kart, kırmızı kart sayıları
+- Fair Play skorları
+- Takım puanları ve galibiyet/beraberlik/mağlubiyet oranları
+- 
+Bu proje çok kapsamlı bir futbol veri analizi yapıyor - binlerce maç, oyuncu performansı ve takım istatistiğini analiz ediyor! 🏆
 
 ### 🎯 Temel Amaç
 - Futbol takımları ve oyuncularının performans verilerini merkezi bir platformda toplamak
