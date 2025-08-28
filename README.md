@@ -296,10 +296,6 @@ Bu projeye katkıda bulunmak isterseniz:
 4. Branch'i push edin (`git push origin feature/amazing-feature`)
 5. Pull Request açın
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
 ## 👨‍💻 Geliştirici
 
 **Erkut Çakar** - Football Analyst & Developer  
@@ -308,3 +304,54 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 ---
 
 ⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+
+
+
+Proje Görselleri : ⭐
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230744" src="https://github.com/user-attachments/assets/28d5099b-50c5-46aa-a701-6d2fd961ac98" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230755" src="https://github.com/user-attachments/assets/f15c8737-0c68-4974-bae2-1c1442f08b4d" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230805" src="https://github.com/user-attachments/assets/1f52d898-353e-4af8-afe7-025a2a9a2ffa" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230811" src="https://github.com/user-attachments/assets/b952e964-23c9-4ce8-ac14-3f3e3eaa6931" />
+
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230826" src="https://github.com/user-attachments/assets/515b6158-06f8-46bc-9007-4dedde537d0e" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230838" src="https://github.com/user-attachments/assets/03fc2fa7-9146-4496-8aa7-bd72483d8e78" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230843" src="https://github.com/user-attachments/assets/557d6451-11e3-4586-98e6-6b0cb814aaca" />
+
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230850" src="https://github.com/user-attachments/assets/437a278c-2b45-42aa-bb42-fccbf410112f" />
+
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230859" src="https://github.com/user-attachments/assets/1c49f279-f34c-4adf-99af-baaa57c2e8e7" />
+
+
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230905" src="https://github.com/user-attachments/assets/34dd4635-25d1-4ea2-bafb-7848a2e020ce" />
+
+
+⭐├─<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230913" src="https://github.com/user-attachments/assets/d35d1347-4a57-4bbd-98f1-fd4a7802772b" />
+
+----------------------------------------------------------
