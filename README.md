@@ -74,10 +74,10 @@
 #### **Gelişmiş Filtreleme Sistemi**
 ```
 🔍 Arama Filtreleri:
-├── Oyuncu Adı
-├── Pozisyon
-├── Liga: 
-└── Sezon: 2014-2020 arası tüm sezonlar
+├── Oyuncu Adı:
+├── Pozisyon:
+├── Lig: 
+└── Sezon: 2014-2020 arası tüm sezonlar:
 ```
 #### **Detaylı İstatistik Metrikleri**
 - **Goals**: Toplam gol sayısı
