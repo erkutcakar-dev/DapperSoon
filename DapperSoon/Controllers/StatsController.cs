@@ -111,19 +111,7 @@ namespace DapperSoon.Controllers
 
             var leagueStats = conn.Query<LeagueStatsDto>(leagueStatsQuery, new { SelectedSeason = selectedSeason }).ToList();
 
-            // Chart Data for Goals vs xGoals
-            var goalsVsXGoals = conn.Query<ScatterChartDataDto>(@"
-                SELECT 
-                    SUM(a.goals) as X,
-                    SUM(a.xGoals) as Y,
-                    p.name as Label,
-                    'rgba(54, 162, 235, 0.6)' as Color
-                FROM appearances a
-                INNER JOIN players p ON a.playerID = p.playerID
-                GROUP BY p.playerID, p.name
-                HAVING SUM(a.goals) > 0 OR SUM(a.xGoals) > 0
-                ORDER BY SUM(a.goals) DESC
-            ").Take(20).ToList();
+
 
             // Get total count for Team Performance pagination
             var teamPerformanceCountQuery = @"
@@ -166,7 +154,6 @@ namespace DapperSoon.Controllers
                 LeagueStats = leagueStats,
                 AvailableSeasons = availableSeasons,
                 SelectedSeason = selectedSeason,
-                GoalsVsXGoals = goalsVsXGoals,
                 TeamPerformance = teamPerformance,
                 TeamPerformanceChartData = GetTopRedCardsData(conn, selectedSeason),
                 TopScorersChartData = topScorers.Take(10).Select(p => new { name = p.PlayerName, goals = p.Goals }).ToList(),
