@@ -24,8 +24,14 @@
 - Faul, sarı kart, kırmızı kart sayıları
 - Fair Play skorları
 - Takım puanları ve galibiyet/beraberlik/mağlubiyet oranları
-- 
+  
 Bu proje çok kapsamlı bir futbol veri analizi yapıyor - binlerce maç, oyuncu performansı ve takım istatistiğini analiz ediyor! 🏆
+
+### 🔍 Filtreleme Kapsamı:
+- Sezon Aralığı: 2014-2020 (7 sezon)
+- Top 10 Analizleri: En iyi golcüler, en çok kırmızı kart alan takımlar
+- Liga Bazlı: Serie A, La Liga, Premier League, Bundesliga, Ligue 1
+- Pozisyon Bazlı: GK, DEF, MID, ATT
 
 ### 🎯 Temel Amaç
 - Futbol takımları ve oyuncularının performans verilerini merkezi bir platformda toplamak
