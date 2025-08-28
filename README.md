@@ -1,6 +1,5 @@
 # 🏆 DapperSoon - Football Statistics Dashboard
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-purple.svg)
