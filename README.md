@@ -10,11 +10,11 @@
 **DapperSoon**, ASP.NET Core MVC ve Dapper ORM kullanılarak geliştirilmiş kapsamlı bir futbol istatistik yönetim sistemidir. Corona Bootstrap teması ile modern, responsive ve kullanıcı dostu bir arayüze sahiptir. Profesyonel futbol liglerinin detaylı istatistiklerini analiz etmek ve görselleştirmek için tasarlanmıştır. 2014-2020 yılları arasındaki 5 büyük lige ilişkin 11.196.225 veri kullanılmıştır.
 
 ### 🎯 İncelenen Futbol ligleri.
-1-	Premier League	
-2-	Serie A	
-3-	Bundesliga	
-4-	La Liga
-5-	Ligue 1	
+-Premier League 
+-Serie A
+Bundesliga
+La Liga
+Ligue 1	
 
 ### 🎯 Temel Amaç
 - Futbol takımları ve oyuncularının performans verilerini merkezi bir platformda toplamak
