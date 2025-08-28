@@ -321,7 +321,7 @@ Bu projeye katkıda bulunmak isterseniz:
 
 ## 👨‍💻 Geliştirici
 
-**Erkut Çakar** - Football Analyst & Developer  
+**Erkut Çakar** -Developer  
 🔗 GitHub: https://github.com/erkutcakar-dev
 
 ---
