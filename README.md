@@ -78,7 +78,7 @@
 ├── Pozisyon
 ├── Liga: 
 └── Sezon: 2014-2020 arası tüm sezonlar
-
+```
 #### **Detaylı İstatistik Metrikleri**
 - **Goals**: Toplam gol sayısı
 - **Assists**: Asist sayısı  
