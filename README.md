@@ -1,6 +1,5 @@
 # 🏆 DapperSoon - Football Statistics Dashboard
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-purple.svg)
@@ -8,7 +7,31 @@
 
 ## 📋 Proje Genel Bakış
 
-**DapperSoon**, ASP.NET Core MVC ve Dapper ORM kullanılarak geliştirilmiş kapsamlı bir futbol istatistik yönetim sistemidir. Corona Bootstrap teması ile modern, responsive ve kullanıcı dostu bir arayüze sahiptir. Profesyonel futbol liglerinin detaylı istatistiklerini analiz etmek ve görselleştirmek için tasarlanmıştır.
+**DapperSoon**, ASP.NET Core MVC ve Dapper ORM kullanılarak geliştirilmiş kapsamlı bir futbol istatistik yönetim sistemidir. Corona Bootstrap teması ile modern, responsive ve kullanıcı dostu bir arayüze sahiptir. Profesyonel futbol liglerinin detaylı istatistiklerini analiz etmek ve görselleştirmek için tasarlanmıştır. 2014-2020 yılları arasındaki 5 büyük lige ilişkin 11.196.225 veri kullanılmıştır.
+
+### 🎯 İncelenen Futbol ligleri.
+- Premier League
+- Serie A
+- Bundesliga
+- La Liga
+- Ligue 1
+
+### 🎯 İncelenen Metrikler:
+- Gol sayıları ve expected goals (xGoals)
+- Asist sayıları ve expected assists (xAssists)
+- Maç ve dakika sayıları
+- Şut sayıları ve isabetli şutlar
+- Faul, sarı kart, kırmızı kart sayıları
+- Fair Play skorları
+- Takım puanları ve galibiyet/beraberlik/mağlubiyet oranları
+  
+Bu proje çok kapsamlı bir futbol veri analizi yapıyor - binlerce maç, oyuncu performansı ve takım istatistiğini analiz ediyor! 🏆
+
+### 🔍 Filtreleme Kapsamı:
+- Sezon Aralığı: 2014-2020 (7 sezon)
+- Top 10 Analizleri: En iyi golcüler, en çok kırmızı kart alan takımlar
+- Liga Bazlı: Serie A, La Liga, Premier League, Bundesliga, Ligue 1
+- Pozisyon Bazlı: GK, DEF, MID, ATT
 
 ### 🎯 Temel Amaç
 - Futbol takımları ve oyuncularının performans verilerini merkezi bir platformda toplamak
@@ -65,12 +88,11 @@
 #### **Gelişmiş Filtreleme Sistemi**
 ```
 🔍 Arama Filtreleri:
-├── Oyuncu Adı: Text bazlı arama
-├── Pozisyon: GK, DEF, MID, ATT
-├── Liga: Serie A, La Liga, Premier League, Bundesliga, Ligue 1
-└── Sezon: 2014-2020 arası tüm sezonlar
+├── Oyuncu Adı:
+├── Pozisyon:
+├── Lig: 
+└── Sezon: 2014-2020 arası tüm sezonlar:
 ```
-
 #### **Detaylı İstatistik Metrikleri**
 - **Goals**: Toplam gol sayısı
 - **Assists**: Asist sayısı  
@@ -111,9 +133,9 @@
 ### ⚖️ Fair Play Table (Disiplin Tablosu)
 
 #### **Disiplin Metrikleri**
-- **Fouls**: Toplam faul sayısı (mavi badge - `badge-primary`)
-- **Yellow Cards**: Sarı kart sayısı (sarı badge - `badge-warning`)
-- **Red Cards**: Kırmızı kart sayısı (kırmızı badge - `badge-danger`)
+- **Fouls**: Toplam faul sayısı 
+- **Yellow Cards**: Sarı kart sayısı 
+- **Red Cards**: Kırmızı kart sayısı
 
 #### **Fair Play Score Hesaplama**
 ```csharp
@@ -297,15 +319,62 @@ Bu projeye katkıda bulunmak isterseniz:
 4. Branch'i push edin (`git push origin feature/amazing-feature`)
 5. Pull Request açın
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
 ## 👨‍💻 Geliştirici
 
-**Erkut Çakar** - Football Analyst & Developer  
+**Erkut Çakar** -Developer  
 🔗 GitHub: https://github.com/erkutcakar-dev
 
 ---
 
 ⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+
+
+
+Proje Görselleri : ⭐
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230744" src="https://github.com/user-attachments/assets/28d5099b-50c5-46aa-a701-6d2fd961ac98" />
+
+
+
+⭐├──<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230755" src="https://github.com/user-attachments/assets/f15c8737-0c68-4974-bae2-1c1442f08b4d" />
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230805" src="https://github.com/user-attachments/assets/1f52d898-353e-4af8-afe7-025a2a9a2ffa" />
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230811" src="https://github.com/user-attachments/assets/b952e964-23c9-4ce8-ac14-3f3e3eaa6931" />
+
+
+
+
+⭐├─<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230826" src="https://github.com/user-attachments/assets/515b6158-06f8-46bc-9007-4dedde537d0e" />
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230838" src="https://github.com/user-attachments/assets/03fc2fa7-9146-4496-8aa7-bd72483d8e78" />
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230843" src="https://github.com/user-attachments/assets/557d6451-11e3-4586-98e6-6b0cb814aaca" />
+
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230850" src="https://github.com/user-attachments/assets/437a278c-2b45-42aa-bb42-fccbf410112f" />
+
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230859" src="https://github.com/user-attachments/assets/1c49f279-f34c-4adf-99af-baaa57c2e8e7" />
+
+
+
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230905" src="https://github.com/user-attachments/assets/34dd4635-25d1-4ea2-bafb-7848a2e020ce" />
+
+
+⭐<img width="1920" height="1080" alt="Ekran görüntüsü 2025-08-28 230913" src="https://github.com/user-attachments/assets/d35d1347-4a57-4bbd-98f1-fd4a7802772b" />
+
+----------------------------------------------------------
